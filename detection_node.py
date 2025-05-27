@@ -14,8 +14,8 @@ import cv2
 import struct
 from unicodedata import name
 
-from . import detection_ros_markers as dr
-from . import detection_2d_to_3d as d2
+import detection_ros_markers as dr
+import detection_2d_to_3d as d2
 
 
 class DetectionNode:

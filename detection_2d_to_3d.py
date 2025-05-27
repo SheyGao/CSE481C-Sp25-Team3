@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy.spatial.transform import Rotation
-from .numba_image_to_pointcloud import numba_image_to_pointcloud
+import numba_image_to_pointcloud
 import hello_helpers.fit_plane as fp
 
 

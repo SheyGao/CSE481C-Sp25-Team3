@@ -2,8 +2,8 @@
 
 import rclpy
 
-from . import object_detect_pytorch as od
-from . import detection_node as dn
+import object_detect_pytorch as od
+import detection_node as dn
 
 def main():
     confidence_threshold = 0.0
