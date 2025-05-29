@@ -7,6 +7,8 @@ from std_msgs.msg import String
 
 from perception.align_to_aruco import main as align_to_aruco
 from perception.object_pose_server import AVAILABLE_OBJECTS
+from perception.object_pose_server import POSES_FILENAME
+from manipulation.pose_replayer import load_and_replay
 
 def show_menu():
     print('\n--- Main Menu ---')
@@ -47,7 +49,9 @@ def grab_detected_object():
     """
     This function should command the robot to grab the detected object using the relative positions between the object and robot.
     """
-    
+    filename = 'perception/' + POSES_FILENAME
+    if os.path.exists(filename) and os.path.getsize(filename) > 0:
+        load_and_replay(filename)
 
 def main():
     while True:
