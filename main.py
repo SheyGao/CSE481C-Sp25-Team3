@@ -32,26 +32,26 @@ def detect_object():
     object = input('Enter which object to detect: ')
 
     if object in AVAILABLE_OBJECTS:
-        pass
+        rclpy.init()
+        node = rclpy.create_node('detect_object_publisher')
+        pub = node.create_publisher(String, 'team3objectposesave', 10)
+        msg = String()
+        msg.data = object
+        pub.publish(msg)
+        rclpy.shutdown()
     else:
-        print(f'Error: invalid object name {object}')
-        print(f'Available options are: {AVAILABLE_OBJECTS}')
-    
-    rclpy.init()
-    node = rclpy.create_node('detect_object_publisher')
-    pub = node.create_publisher(String, 'team3objectposesave', 10)
-    msg = String()
-    msg.data = object
-    pub.publish(msg)
-    rclpy.shutdown()
+        print(f'Error: invalid object name {object}.')
+        print(f'Available options are: {AVAILABLE_OBJECTS}.')
 
 def grab_detected_object():
     """
     This function should command the robot to grab the detected object using the relative positions between the object and robot.
     """
-    filename = 'perception/' + POSES_FILENAME
+    filename = './' + POSES_FILENAME
     if os.path.exists(filename) and os.path.getsize(filename) > 0:
         load_and_replay(filename)
+    else:
+        print(f"Error: {filename} doesn't exist or is empty.")
 
 def main():
     while True:

@@ -127,7 +127,7 @@ def main():
     trans_base = None
 
     # Get the ArUco tag name from the launch file parameter (default: "base_right")
-    node.declare_parameter("aruco_tag_name", "base_right")
+    node.declare_parameter("aruco_tag_name", "bowl")
     aruco_tag_name_in_stretch_marker_dict = node.get_parameter("aruco_tag_name").get_parameter_value().string_value
 
     missing = []
