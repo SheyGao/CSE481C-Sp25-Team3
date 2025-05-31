@@ -1,4 +1,5 @@
 import rclpy
+import time
 import json
 import hello_helpers.hello_misc as hm
 import numpy as np
@@ -24,10 +25,24 @@ def load_and_replay(filename):
         y = saved_pose["translation"]["y"]
         z = saved_pose["translation"]["z"]
 
-        movement_node.move_to_pose({'translate_mobile_base': x})
-        movement_node.move_to_pose({'joint_lift': y})
-        movement_node.move_to_pose({'joint_arm': z})
-        movement_node.move_to_pose({'joint_gripper_finger_left': -1.2})
+        movement_node.move_to_pose({'joint_arm': 0.0})
+        movement_node.move_to_pose({'joint_lift': 1.5})
+        movement_node.move_to_pose({'joint_gripper_finger_left': 1.2})
 
-        movement_node.move_to_pose({'joint_arm': 0.25})
-        movement_node.move_to_pose({'joint_lift': 1.0})
+        movement_node.move_to_pose({'translate_mobile_base': x - 0.03})
+        time.sleep(2)
+        movement_node.move_to_pose({'joint_arm': -y - 0.0990})
+        time.sleep(4)
+        movement_node.move_to_pose({'joint_lift': z + 0.21})
+        time.sleep(4)
+        movement_node.move_to_pose({'joint_gripper_finger_left': 0.1})  # 0.2 for bowl
+        time.sleep(2)
+
+        movement_node.move_to_pose({'joint_lift': 1.5})
+        movement_node.move_to_pose({'joint_arm': 0.0})
+
+        # movement_node.move_to_pose({'joint_arm': 0.25})
+        # movement_node.move_to_pose({'joint_lift': 1.0})
+
+if __name__ == '__main__':
+    load_and_replay('object_poses.json')
