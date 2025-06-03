@@ -16,6 +16,8 @@ from tf_transformations import euler_from_quaternion, quaternion_matrix
 from trajectory_msgs.msg import JointTrajectoryPoint
 from action_msgs.msg import GoalStatus
 
+import hello_helpers.hello_misc as hm
+
 class AlignToAruco(Node):
     def __init__(
         self, node, trans_base: TransformStamped, offset=0.75
@@ -127,6 +129,7 @@ def main():
     trans_base = None
 
     # Get the ArUco tag name from the launch file parameter (default: "base_right")
+    # 30: knife, 31: fork, 32:bowl, 33: table
     node.declare_parameter("aruco_tag_name", "bowl")
     aruco_tag_name_in_stretch_marker_dict = node.get_parameter("aruco_tag_name").get_parameter_value().string_value
 
@@ -135,6 +138,7 @@ def main():
     while rclpy.ok():
         # Block while searching for the marker:
         try:
+            print(f"looking up transform from base_link to {aruco_tag_name_in_stretch_marker_dict}")
             if tf_buffer.can_transform(
                 "base_link", aruco_tag_name_in_stretch_marker_dict, Time()
             ):
@@ -181,5 +185,9 @@ def main():
     finally:
         rclpy.shutdown()
 
+    movement_node = hm.HelloNode.quick_create('group3node')
+    movement_node.move_to_pose({'joint_head_pan': 0.0})
+    movement_node.move_to_pose({'joint_head_tilt': 0.5})
+    
 if __name__ == '__main__':
     main()
