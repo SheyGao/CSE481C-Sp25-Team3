@@ -12,7 +12,7 @@ import roslibpy # type: ignore
 is_recording = False
 recording_stream = None
 audio_data = []
-nlp = spacy.load("en_core_web_sm")
+#nlp = spacy.load("en_core_web_sm")
 
 def beep(frequency=440, duration=0.2, sample_rate=44100):
     t = np.linspace(0, duration, int(sample_rate * duration), False)
@@ -89,29 +89,43 @@ def send_request():
             audio_data = recognizer.record(source)
             text = recognizer.recognize_google(audio_data)
             print("Transcribed Text:", text)
-            
-            doc = nlp(text)
 
-            grabbed_objects = []
+            text_array = text.lower().split(" ")
+            print(text_array)
+            possible_objects = ["bowl", "spoon", "fork", "knife", "cup"]
+            object_to_grab = None
+            for obj in possible_objects:
+                if obj in text_array:
+                    object_to_grab = obj
+                    break
+            print(object_to_grab)
+            if (object_to_grab is not None):
+                print("test")
+                send_to_ros("", object_to_grab)
+            # doc = nlp(text)
 
-            for token in doc:
-                # Focus only on the verb "grab" or "grabs"
-                if token.lemma_ == "grab" and token.pos_ == "VERB":
-                    for child in token.children:
-                        if child.dep_ in ("dobj", "attr", "pobj") and child.pos_ == "NOUN":
-                            noun = child.text.lower()
-                            grabbed_objects.append(noun)
+            # print(doc)
 
-            print("Objects to grab:", grabbed_objects)
+            # grabbed_objects = []
 
-            with open("parsed_keywords.txt", "w") as f:
-                f.write("Grabbed Objects: " + ", ".join(grabbed_objects) + "\n")
+            # for token in doc:
+            #     # Focus only on the verb "grab" or "grabs"
+            #     if token.lemma_ == "grab" and token.pos_ == "VERB":
+            #         for child in token.children:
+            #             if child.dep_ in ("dobj", "attr", "pobj") and child.pos_ == "NOUN":
+            #                 noun = child.text.lower()
+            #                 grabbed_objects.append(noun)
 
-            if grabbed_objects:
-                for obj in grabbed_objects:
-                    send_to_ros("grab", obj)
-            else:
-                print("No valid grab target found.")
+            # print("Objects to grab:", grabbed_objects)
+
+            # with open("parsed_keywords.txt", "w") as f:
+            #     f.write("Grabbed Objects: " + ", ".join(grabbed_objects) + "\n")
+
+            # if grabbed_objects:
+            #     for obj in grabbed_objects:
+            #         send_to_ros("grab", obj)
+            # else:
+            #     print("No valid grab target found.")
 
     except sr.UnknownValueError:
         print("Could not understand the audio.")
@@ -127,10 +141,13 @@ def send_to_ros(verb, noun):
         client.run()
 
         # Define the ROS topic and message format
-        command_topic = roslibpy.Topic(client, '/robot_command', 'std_msgs/String')
+        command_topic = roslibpy.Topic(client, '/team3objectposequery', 'std_msgs/String')
+        
+        command_topic.advertise()
 
         # Combine verb and noun into a simple string command
-        command = f'{verb} {noun}'  # e.g., 'grab cup'
+        #command = f'{verb} {noun}'  # e.g., 'grab cup'
+        command = noun  # e.g., 'grab cup'
         command_topic.publish(roslibpy.Message({'data': command}))
         print('Sent to robot:', command)
 
