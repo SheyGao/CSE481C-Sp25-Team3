@@ -7,6 +7,7 @@ import speech_recognition as sr
 import numpy as np
 from scipy.io.wavfile import read
 import spacy
+import roslibpy # type: ignore
 
 is_recording = False
 recording_stream = None
@@ -64,36 +65,6 @@ def record_audio():
         record_button.config(text="Record Audio Description")
 
 
-def send_request():
-    print("Sending processed request to robot...")
-
-    recognizer = sr.Recognizer()
-    audio_file = "audio.wav"
-
-    try:
-        with sr.AudioFile(audio_file) as source:
-            audio_data = recognizer.record(source)
-            text = recognizer.recognize_google(audio_data)
-            print("Transcribed Text:", text)
-            
-            # NLP-based Keyword Extraction
-            doc = nlp(text)
-            verbs = [token.text for token in doc if token.pos_ == "VERB"]
-            nouns = [token.text for token in doc if token.pos_ == "NOUN"]
-            print("Extracted Verbs:", verbs)
-            print("Extracted Nouns:", nouns)
-
-            with open("parsed_keywords.txt", "w") as f:
-                f.write("Verbs: " + ", ".join(verbs) + "\n")
-                f.write("Nouns: " + ", ".join(nouns) + "\n")
-
-    except sr.UnknownValueError:
-        print("Could not understand the audio.")
-    except sr.RequestError as e:
-        print(f"Speech recognition request failed: {e}")
-    except FileNotFoundError:
-        print("Audio file not found. Please record first.")
-
 def play_audio():
     try:
         fs, data = read('audio.wav')
@@ -106,8 +77,70 @@ def play_audio():
     except Exception as e:
         print("Error during playback:", e)
 
-def dummy_action(action_name):
-    print(f"{action_name} button pressed")
+
+def send_request():
+    print("Sending processed request to robot...")
+
+    recognizer = sr.Recognizer()
+    audio_file = "audio.wav"
+
+    try:
+        with sr.AudioFile(audio_file) as source:
+            audio_data = recognizer.record(source)
+            text = recognizer.recognize_google(audio_data)
+            print("Transcribed Text:", text)
+            
+            doc = nlp(text)
+
+            grabbed_objects = []
+
+            for token in doc:
+                # Focus only on the verb "grab" or "grabs"
+                if token.lemma_ == "grab" and token.pos_ == "VERB":
+                    for child in token.children:
+                        if child.dep_ in ("dobj", "attr", "pobj") and child.pos_ == "NOUN":
+                            noun = child.text.lower()
+                            grabbed_objects.append(noun)
+
+            print("Objects to grab:", grabbed_objects)
+
+            with open("parsed_keywords.txt", "w") as f:
+                f.write("Grabbed Objects: " + ", ".join(grabbed_objects) + "\n")
+
+            if grabbed_objects:
+                for obj in grabbed_objects:
+                    send_to_ros("grab", obj)
+            else:
+                print("No valid grab target found.")
+
+    except sr.UnknownValueError:
+        print("Could not understand the audio.")
+    except sr.RequestError as e:
+        print(f"Speech recognition request failed: {e}")
+    except FileNotFoundError:
+        print("Audio file not found. Please record first.")
+
+def send_to_ros(verb, noun):
+    try:
+        # Connect to ROS bridge (change 'localhost' to the robot's IP if remote)
+        client = roslibpy.Ros(host='rocky.hcrlab.cs.washington.edu', port=9090)
+        client.run()
+
+        # Define the ROS topic and message format
+        command_topic = roslibpy.Topic(client, '/robot_command', 'std_msgs/String')
+
+        # Combine verb and noun into a simple string command
+        command = f'{verb} {noun}'  # e.g., 'grab cup'
+        command_topic.publish(roslibpy.Message({'data': command}))
+        print('Sent to robot:', command)
+
+        # Clean up connection
+        command_topic.unadvertise()
+        client.terminate()
+
+    except Exception as e:
+        print('Failed to send command to robot:', e)
+
 
 # Create the main window
 root = tk.Tk()
