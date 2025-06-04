@@ -162,32 +162,27 @@ def send_to_ros(verb, noun):
 # Create the main window
 root = tk.Tk()
 root.title("Assistive Robot UI")
-root.geometry("700x400")  # Adjusted height since fewer buttons
+root.attributes('-fullscreen', True) 
 root.configure(bg="white")
 
-container = tk.Frame(root, bg="white")
-container.pack(expand=True)
-container.place(relx=0.5, rely=0.5, anchor='center')
+#container = tk.Frame(root, bg="white")
+#container.pack(expand=True)
+#container.place(relx=0.5, rely=0.5, anchor='center')
 
-# Title label
-title_label = tk.Label(container, text="Assistive Robot Control Panel", font=("Arial", 22, "bold"), bg="white")
-title_label.pack(pady=40)
-
-button_font = ("Arial", 15)
-button_width = 35
-button_height = 2
+button_font = ("Arial", 28, "bold")
 
 # Buttons
-record_button = tk.Button(container, width=button_width, height=button_height, font=button_font)
-record_button.config(text="Record Audio Description", command=record_audio)
-record_button.pack(pady=30)
+record_button = tk.Button(root, text="Record Audio Description", command=record_audio,
+                          font=button_font, bg="lightblue")
+record_button.pack(fill='both', expand=True)
 
-send_button = tk.Button(container, text="Send Request to Robot", command=send_request, width=button_width, height=button_height, font=button_font)
-send_button.pack(pady=30)
+send_button = tk.Button(root, text="Send Request to Robot", command=send_request,
+                        font=button_font, bg="lightgreen")
+send_button.pack(fill='both', expand=True)
 
-play_button = tk.Button(container, text="Play Back Recording", command=play_audio,
-                        width=button_width, height=button_height, font=button_font)
-play_button.pack(pady=30)
+play_button = tk.Button(root, text="Play Back Recording", command=play_audio,
+                        font=button_font, bg="lightyellow")
+play_button.pack(fill='both', expand=True)
 
 # Start the GUI loop
 root.mainloop()
