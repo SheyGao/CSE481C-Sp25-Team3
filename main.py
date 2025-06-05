@@ -70,36 +70,37 @@ class VoiceCommandListener(Node):
         self.voice_command
 
     def voice_command_callback(self, msg):
-        align_to_aruco.main()
+        print(msg.data)
+        # align_to_aruco.main()
 
-        start_time = time.time()
-        last_time = start_time
+        # start_time = time.time()
+        # last_time = start_time
 
-        filename = './' + POSES_FILENAME
-        with open(filename, 'w') as f:
-            # File is automatically emptied/created
-            pass
+        # filename = './' + POSES_FILENAME
+        # with open(filename, 'w') as f:
+        #     # File is automatically emptied/created
+        #     pass
+
+        # while not(os.path.exists(filename) and os.path.getsize(filename) > 0):
+        #     if time.time() - last_time > DETECTION_QUERY_INTERVAL:
+        #         rclpy.init()
+        #         node = rclpy.create_node('detect_object_publisher')
+        #         pub = node.create_publisher(String, 'team3objectposesave', 10)
+        #         msg = String()
+        #         msg.data = msg.data
+        #         pub.publish(msg)
+        #         rclpy.shutdown()
+
+        #         last_time = time.time()
+
+        #     if time.time() - start_time > TIMEOUT_SECONDS:
+        #         print("Timeout reached!")
+        #         break
         
-        while not(os.path.exists(filename) and os.path.getsize(filename) > 0):
-            if time.time() - last_time > DETECTION_QUERY_INTERVAL:
-                rclpy.init()
-                node = rclpy.create_node('detect_object_publisher')
-                pub = node.create_publisher(String, 'team3objectposesave', 10)
-                msg = String()
-                msg.data = msg.data
-                pub.publish(msg)
-                rclpy.shutdown()
-
-                last_time = time.time()
-
-            if time.time() - start_time > TIMEOUT_SECONDS:
-                print("Timeout reached!")
-                break
-        
-        if os.path.exists(filename) and os.path.getsize(filename) > 0:
-            load_and_replay(filename)
-        else:
-            print(f"Error!")
+        # if os.path.exists(filename) and os.path.getsize(filename) > 0:
+        #     load_and_replay(filename)
+        # else:
+        #     print(f"Error!")
 
 
 def voice_command_publish():
