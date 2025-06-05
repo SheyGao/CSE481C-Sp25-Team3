@@ -16,6 +16,21 @@ recording_stream = None
 audio_data = []
 #nlp = spacy.load("en_core_web_sm")
 
+def beep(frequency=440, duration=0.2, sample_rate=44100):
+    t = np.linspace(0, duration, int(sample_rate * duration), False)
+    tone = np.sin(frequency * 2 * np.pi * t)
+    audio = tone.astype(np.float32)
+    sd.play(audio, sample_rate)
+    sd.wait()
+
+
+def subscribe_func(msg):
+    feedback = msg['data']
+    if (feedback == "success"):
+        beep(duration=1)
+    elif (feedback == "failure"):
+        beep(frequency=300, duration=1)
+
 try:
     # Connect to ROS bridge (change 'localhost' to the robot's IP if remote)
     client = roslibpy.Ros(host='rocky.hcrlab.cs.washington.edu', port=9090)
@@ -23,18 +38,15 @@ try:
 
     # Define the ROS topic and message format
     command_topic = roslibpy.Topic(client, '/team3voicecommand', 'std_msgs/String')
-    
+    feedback_topic = roslibpy.Topic(client, '/team3voicefeedback', 'std_msgs/String')
+
     command_topic.advertise()
+    feedback_topic.subscribe(subscribe_func)
 except Exception as e:
     print("Failed to connect to ROS")
 
 
-def beep(frequency=440, duration=0.2, sample_rate=44100):
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    tone = np.sin(frequency * 2 * np.pi * t)
-    audio = tone.astype(np.float32)
-    sd.play(audio, sample_rate)
-    sd.wait()
+
 
 
 def record_audio():
