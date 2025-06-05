@@ -185,9 +185,9 @@ def main():
     finally:
         rclpy.shutdown()
 
-    movement_node = hm.HelloNode.quick_create('group3node')
-    movement_node.move_to_pose({'joint_head_pan': -2.0})
-    movement_node.move_to_pose({'joint_head_tilt': -0.3})
+    # movement_node = hm.HelloNode.quick_create('group3node')
+    # movement_node.move_to_pose({'joint_head_pan': -2.0})
+    # movement_node.move_to_pose({'joint_head_tilt': -0.3})
     
 if __name__ == '__main__':
     main()
