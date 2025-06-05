@@ -1,18 +1,21 @@
 # source ~/Desktop/robot-env/bin/activate
 # cd Desktop
+
+# ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+
 import tkinter as tk
 import sounddevice as sd
 from scipy.io.wavfile import write
 import speech_recognition as sr
 import numpy as np
 from scipy.io.wavfile import read
-import spacy
 import roslibpy # type: ignore
 
 is_recording = False
 recording_stream = None
 audio_data = []
 #nlp = spacy.load("en_core_web_sm")
+
 
 def beep(frequency=440, duration=0.2, sample_rate=44100):
     t = np.linspace(0, duration, int(sample_rate * duration), False)
@@ -47,7 +50,7 @@ def record_audio():
 
     else:
         print("Beep: end recording")
-        beep(frequency=660)
+        beep(frequency=300)
         print("Recording stopped.")
         is_recording = False
 
@@ -100,8 +103,8 @@ def send_request():
                     break
             print(object_to_grab)
             if (object_to_grab is not None):
-                print("test")
                 send_to_ros("", object_to_grab)
+                beep(frequency=800)
             # doc = nlp(text)
 
             # print(doc)
@@ -141,7 +144,7 @@ def send_to_ros(verb, noun):
         client.run()
 
         # Define the ROS topic and message format
-        command_topic = roslibpy.Topic(client, '/team3objectposequery', 'std_msgs/String')
+        command_topic = roslibpy.Topic(client, '/team3voicecommand', 'std_msgs/String')
         
         command_topic.advertise()
 
@@ -162,7 +165,7 @@ def send_to_ros(verb, noun):
 # Create the main window
 root = tk.Tk()
 root.title("Assistive Robot UI")
-root.attributes('-fullscreen', True) 
+root.attributes('-fullscreen', True)
 root.configure(bg="white")
 
 #container = tk.Frame(root, bg="white")
@@ -176,13 +179,28 @@ record_button = tk.Button(root, text="Record Audio Description", command=record_
                           font=button_font, bg="lightblue")
 record_button.pack(fill='both', expand=True)
 
+play_button = tk.Button(root, text="Play Back Recording", command=play_audio,
+                        font=button_font, bg="lightyellow")
+play_button.pack(fill='both', expand=True)
+
 send_button = tk.Button(root, text="Send Request to Robot", command=send_request,
                         font=button_font, bg="lightgreen")
 send_button.pack(fill='both', expand=True)
 
-play_button = tk.Button(root, text="Play Back Recording", command=play_audio,
-                        font=button_font, bg="lightyellow")
-play_button.pack(fill='both', expand=True)
+
+def keyPress(event):
+    if event.char == "f":
+        print("f is pressed")
+        play_audio()
+    if event.char == "j":
+        print("j is pressed")
+        send_request()
+def spacePress(event):
+    print("space is pressed")
+    record_audio()
+
+root.bind("<KeyPress>",keyPress)
+root.bind("<space>",spacePress)
 
 # Start the GUI loop
 root.mainloop()
