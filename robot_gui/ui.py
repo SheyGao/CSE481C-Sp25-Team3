@@ -16,6 +16,18 @@ recording_stream = None
 audio_data = []
 #nlp = spacy.load("en_core_web_sm")
 
+try:
+    # Connect to ROS bridge (change 'localhost' to the robot's IP if remote)
+    client = roslibpy.Ros(host='rocky.hcrlab.cs.washington.edu', port=9090)
+    client.run()
+
+    # Define the ROS topic and message format
+    command_topic = roslibpy.Topic(client, '/team3voicecommand', 'std_msgs/String')
+    
+    command_topic.advertise()
+except Exception as e:
+    print("Failed to connect to ROS")
+
 
 def beep(frequency=440, duration=0.2, sample_rate=44100):
     t = np.linspace(0, duration, int(sample_rate * duration), False)
@@ -140,13 +152,13 @@ def send_request():
 def send_to_ros(verb, noun):
     try:
         # Connect to ROS bridge (change 'localhost' to the robot's IP if remote)
-        client = roslibpy.Ros(host='rocky.hcrlab.cs.washington.edu', port=9090)
-        client.run()
+        #client = roslibpy.Ros(host='rocky.hcrlab.cs.washington.edu', port=9090)
+        #client.run()
 
         # Define the ROS topic and message format
-        command_topic = roslibpy.Topic(client, '/team3voicecommand', 'std_msgs/String')
+        #command_topic = roslibpy.Topic(client, '/team3voicecommand', 'std_msgs/String')
         
-        command_topic.advertise()
+        #command_topic.advertise()
 
         # Combine verb and noun into a simple string command
         #command = f'{verb} {noun}'  # e.g., 'grab cup'
@@ -155,8 +167,8 @@ def send_to_ros(verb, noun):
         print('Sent to robot:', command)
 
         # Clean up connection
-        command_topic.unadvertise()
-        client.terminate()
+        #command_topic.unadvertise()
+        #client.terminate()
 
     except Exception as e:
         print('Failed to send command to robot:', e)
